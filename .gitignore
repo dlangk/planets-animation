@@ -1,0 +1,19 @@
+# macOS
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+
+# Downloaded CSS files (not needed for the project)
+*.css
+futurememories.html
+futurememories_page.png
+
+# Keep only essential files
+!planets_animation.html
+!README.md
+!noise_texture.png
+!*.png

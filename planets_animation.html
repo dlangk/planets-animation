@@ -1,0 +1,273 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Orbiting Planets Animation</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            overflow: hidden;
+            background: #000;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, sans-serif;
+        }
+
+        .background {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100vh;
+            background: linear-gradient(139deg, #324948 6.45%, #090d17 63.44%);
+            overflow: hidden;
+        }
+
+        /* Noise texture overlay - full screen layer on top */
+        .noise-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 100;
+            opacity: 0.2;
+            mix-blend-mode: overlay;
+        }
+
+        .noise-overlay::before {
+            content: "";
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-image: url('noise_texture.png');
+            background-repeat: repeat;
+            background-size: 600px 600px;
+        }
+
+        /* Fallback noise pattern if image not available */
+        .noise-overlay::after {
+            content: "";
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            opacity: 0.5;
+            background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='100' height='100'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='turbulence' baseFrequency='0.9' numOctaves='4' seed='5' /%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)' /%3E%3C/svg%3E");
+            background-size: 100px 100px;
+        }
+
+        .orbit-container {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 100%;
+            height: 100vh;
+            opacity: 0.8;
+            animation: orbit-rotation 180s linear infinite;
+        }
+
+        @keyframes orbit-rotation {
+            from {
+                transform: translate(-50%, -50%) rotate(0deg);
+            }
+            to {
+                transform: translate(-50%, -50%) rotate(360deg);
+            }
+        }
+
+        .planet-wrapper {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 200vw;
+            height: 200vh;
+            pointer-events: none;
+            overflow: visible;
+        }
+
+        /* Smaller peachy moon - sharp edge with minimal blur */
+        .moon {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 110px;
+            height: 110px;
+            border-radius: 50%;
+            transform-origin: center;
+            background: linear-gradient(186.73deg, 
+                #ffccbf 5.95%, 
+                rgba(255, 184, 130, 0.5) 51.89%, 
+                rgba(255, 136, 0, 0) 93.63%);
+            filter: blur(2.5px);
+            animation: moon-orbit 180s linear infinite;
+        }
+
+        @keyframes moon-orbit {
+            from {
+                transform: translate(-50%, -50%) rotate(0deg) translateX(450px) translateY(150px) rotate(0deg);
+            }
+            to {
+                transform: translate(-50%, -50%) rotate(360deg) translateX(450px) translateY(150px) rotate(-360deg);
+            }
+        }
+
+        /* Large reddish planet - sharper edges with controlled blur */
+        .planet {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 1000px;
+            height: 1000px;
+            aspect-ratio: 1/1;
+            border-radius: 50%;
+            transform-origin: center;
+            background: linear-gradient(185.24deg, 
+                #c72b04 0%, 
+                rgba(241, 113, 17, 0.5) 51.04%, 
+                rgba(248, 180, 89, 0) 97.42%);
+            filter: blur(40px);
+            animation: planet-orbit 180s linear infinite;
+        }
+
+        @keyframes planet-orbit {
+            from {
+                transform: translate(-50%, -50%) rotate(180deg) translateX(450px) translateY(150px) rotate(-180deg);
+            }
+            to {
+                transform: translate(-50%, -50%) rotate(540deg) translateX(450px) translateY(150px) rotate(-540deg);
+            }
+        }
+
+        /* Subtle bottom gradient fade */
+        .bottom-fade {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            height: 10%;
+            background: linear-gradient(0deg, #070b13, rgba(7, 11, 19, 0) 10%, rgba(7, 11, 19, 0));
+            pointer-events: none;
+            z-index: 50;
+        }
+
+        /* Mobile responsiveness */
+        @media screen and (max-width: 768px) {
+            .background {
+                background: linear-gradient(174deg, #324948 -1.51%, #090d17 63.15%);
+            }
+
+            .moon {
+                width: 58px;
+                height: 58px;
+            }
+
+            @keyframes moon-orbit {
+                from {
+                    transform: translate(-50%, -50%) rotate(0deg) translateX(200px) translateY(80px) rotate(0deg);
+                }
+                to {
+                    transform: translate(-50%, -50%) rotate(360deg) translateX(200px) translateY(80px) rotate(-360deg);
+                }
+            }
+
+            .planet {
+                width: 515px;
+                height: 515px;
+            }
+
+            @keyframes planet-orbit {
+                from {
+                    transform: translate(-50%, -50%) rotate(180deg) translateX(200px) translateY(80px) rotate(-180deg);
+                }
+                to {
+                    transform: translate(-50%, -50%) rotate(540deg) translateX(200px) translateY(80px) rotate(-540deg);
+                }
+            }
+        }
+
+        /* Performance optimization */
+        .orbit-container,
+        .moon,
+        .planet {
+            will-change: transform;
+            transform-style: preserve-3d;
+            backface-visibility: hidden;
+        }
+
+        /* Scale adjustment for better viewport fit */
+        @media screen and (min-width: 1400px) {
+            .planet {
+                width: 1200px;
+                height: 1200px;
+            }
+            
+            @keyframes moon-orbit {
+                from {
+                    transform: translate(-50%, -50%) rotate(0deg) translateX(500px) translateY(180px) rotate(0deg);
+                }
+                to {
+                    transform: translate(-50%, -50%) rotate(360deg) translateX(500px) translateY(180px) rotate(-360deg);
+                }
+            }
+
+            @keyframes planet-orbit {
+                from {
+                    transform: translate(-50%, -50%) rotate(180deg) translateX(500px) translateY(180px) rotate(-180deg);
+                }
+                to {
+                    transform: translate(-50%, -50%) rotate(540deg) translateX(500px) translateY(180px) rotate(-540deg);
+                }
+            }
+        }
+
+        @media screen and (min-width: 1920px) {
+            .planet {
+                width: 1500px;
+                height: 1500px;
+            }
+            
+            @keyframes moon-orbit {
+                from {
+                    transform: translate(-50%, -50%) rotate(0deg) translateX(600px) translateY(200px) rotate(0deg);
+                }
+                to {
+                    transform: translate(-50%, -50%) rotate(360deg) translateX(600px) translateY(200px) rotate(-360deg);
+                }
+            }
+
+            @keyframes planet-orbit {
+                from {
+                    transform: translate(-50%, -50%) rotate(180deg) translateX(600px) translateY(200px) rotate(-180deg);
+                }
+                to {
+                    transform: translate(-50%, -50%) rotate(540deg) translateX(600px) translateY(200px) rotate(-540deg);
+                }
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="background">
+        <div class="orbit-container">
+            <div class="planet-wrapper">
+                <div class="moon"></div>
+                <div class="planet"></div>
+            </div>
+        </div>
+        <div class="bottom-fade"></div>
+    </div>
+    <!-- Noise overlay on top of everything -->
+    <div class="noise-overlay"></div>
+</body>
+</html>
